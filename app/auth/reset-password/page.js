@@ -1,8 +1,11 @@
+'use client'
+
+import { Suspense } from 'react'
 import Link from "next/link"
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
 import { ArrowLeft } from "lucide-react"
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   return (
     <div className="container flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12">
       <Link href="/auth/login" className="mb-8 flex items-center text-muted-foreground hover:text-foreground">
@@ -19,5 +22,13 @@ export default function ResetPasswordPage() {
         <ResetPasswordForm />
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
