@@ -1,8 +1,10 @@
+'use client'
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   return (
     <div className="container flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12">
       <Link href="/" className="mb-8 flex items-center text-muted-foreground hover:text-foreground">
@@ -26,5 +28,11 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <VerifyEmailContent />
   )
 }

@@ -1,8 +1,11 @@
+'use client'
+
+import { Suspense } from 'react'
 import Link from "next/link"
 import { LoginForm } from "@/components/auth/login-form"
 import { ArrowLeft } from "lucide-react"
 
-export default function LoginPage() {
+function LoginContent() {
   return (
     <div className="container flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12">
       {/* <Link href="/" className="mb-8 flex items-center text-muted-foreground hover:text-foreground">
@@ -23,5 +26,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
