@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { HeroSection } from "@/components/home/hero-section";
 import { FeaturesSection } from "@/components/home/features-section";
 import { ProjectsSection } from "@/components/home/projects-section";
@@ -11,9 +10,6 @@ import { CtaSection } from "@/components/home/cta-section";
 import { PartnersSection } from "@/components/home/partners-section";
 
 function HomeContent() {
-  // Add useSearchParams hook to handle Next.js CSR bailout
-  const searchParams = useSearchParams();
-  
   return (
     <>
       <HeroSection />

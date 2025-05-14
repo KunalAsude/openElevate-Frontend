@@ -2,13 +2,10 @@
 
 import { Suspense } from 'react';
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 function NotFoundContent() {
-  const searchParams = useSearchParams();
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground px-4">
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />

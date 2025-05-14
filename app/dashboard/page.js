@@ -1,7 +1,6 @@
 'use client'
 
 import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -12,10 +11,6 @@ import { RecommendedProjects } from "@/components/dashboard/recommended-projects
 import { StatsCards } from "@/components/dashboard/stats-cards"
 
 function DashboardContent() {
-  // Even though we may not be directly using the searchParams,
-  // Next.js is detecting it during build
-  const searchParams = useSearchParams()
-
   return (
     <DashboardShell>
       <DashboardHeader heading="Dashboard" text="Welcome back! Here&rsquos an overview of your open source journey." />

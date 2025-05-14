@@ -4,13 +4,8 @@ import { Suspense } from 'react'
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, CheckCircle } from "lucide-react"
-import { useSearchParams } from "next/navigation"
 
 function VerifyEmailContent() {
-  // This component is safe to use useSearchParams here since 
-  // it's dynamically imported with ssr: false
-  const searchParams = useSearchParams()
-  
   return (
     <div className="container flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12">
       <Link href="/" className="mb-8 flex items-center text-muted-foreground hover:text-foreground">

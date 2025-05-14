@@ -2,17 +2,10 @@
 
 import { Suspense } from 'react'
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import { RegisterForm } from "@/components/auth/register-form"
 import { ArrowLeft } from "lucide-react"
 
 function RegisterContentInner() {
-  // Safe to use useSearchParams here because this component is:
-  // 1. Client component ('use client')
-  // 2. Wrapped in Suspense
-  // 3. Dynamically imported with ssr: false
-  const searchParams = useSearchParams()
-  
   return (
     <div className="container flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-0">
       {/* <Link href="/" className="mb-8 flex items-center text-muted-foreground hover:text-foreground">
