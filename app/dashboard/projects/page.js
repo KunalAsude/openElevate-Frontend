@@ -73,8 +73,8 @@ export default function ProjectsPage() {
         <TabsContent value="contributed" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Projects You've Contributed To</CardTitle>
-              <CardDescription>View all projects you've made contributions to.</CardDescription>
+              <CardTitle>Projects You&apos;ve Contributed To</CardTitle>
+              <CardDescription>View all projects you&apos;ve made contributions to.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -95,7 +95,7 @@ export default function ProjectsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Starred Projects</CardTitle>
-              <CardDescription>Projects you've starred for later reference.</CardDescription>
+              <CardDescription>Projects you&apos;ve starred for later reference.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

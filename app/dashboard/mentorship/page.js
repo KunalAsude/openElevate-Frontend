@@ -117,7 +117,7 @@ export default function MentorshipPage() {
                     <CalendarDays className="h-12 w-12 text-muted-foreground/50" />
                     <h3 className="mt-4 text-lg font-semibold">No upcoming sessions</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      You don't have any scheduled mentorship sessions.
+                      You don&apos;t have any scheduled mentorship sessions.
                     </p>
                     <Button className="mt-4">Schedule a Session</Button>
                   </div>
