@@ -1,12 +1,8 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-export default function ProjectsClient() {
-  // Safe to use client-side hooks here
-  const searchParams = useSearchParams();
-
+function ProjectsContent() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Open Source Projects</h1>
@@ -36,6 +32,15 @@ export default function ProjectsClient() {
         />
       </div>
     </div>
+  );
+}
+
+// The main client component
+export default function ProjectsClient() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading projects...</div>}>
+      <ProjectsContent />
+    </Suspense>
   );
 }
 
@@ -70,14 +75,4 @@ function ProjectCard({ title, description, tags, stars, forks }) {
       </div>
     </div>
   );
-}
-
-// Wrap the entire page component in Suspense
-export function ProjectsPageWrapper() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ProjectsClient />
-    </Suspense>
-  );
-
 }

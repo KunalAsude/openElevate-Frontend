@@ -21,7 +21,7 @@ function NotFoundContent() {
 
 export default function NotFoundPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
       <NotFoundContent />
     </Suspense>
   )

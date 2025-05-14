@@ -1,3 +1,6 @@
+'use client'
+
+import { Suspense } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -7,7 +10,7 @@ import { ActivityFeed } from "@/components/dashboard/activity-feed"
 import { RecommendedProjects } from "@/components/dashboard/recommended-projects"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 
-export default function DashboardPage() {
+function DashboardContent() {
   return (
     <DashboardShell>
       <DashboardHeader heading="Dashboard" text="Welcome back! Here&rsquos an overview of your open source journey." />
@@ -67,5 +70,13 @@ export default function DashboardPage() {
         </TabsContent>
       </Tabs>
     </DashboardShell>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }

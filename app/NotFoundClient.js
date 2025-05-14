@@ -1,13 +1,11 @@
 'use client'
 
+import { Suspense } from 'react';
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export default function NotFoundClient() {
-  const searchParams = useSearchParams();
-
+function NotFoundContent() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground px-4">
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
@@ -34,5 +32,13 @@ export default function NotFoundClient() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NotFoundClient() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <NotFoundContent />
+    </Suspense>
   );
 }

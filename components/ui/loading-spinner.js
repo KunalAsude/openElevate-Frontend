@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 export function LoadingSpinner({ size = "md", className }) {
@@ -40,7 +40,6 @@ export function LoadingSpinner({ size = "md", className }) {
 
 export function RouteChangeSpinner() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
 
   // Track route changes to show and hide spinner
@@ -70,7 +69,7 @@ export function RouteChangeSpinner() {
       clearTimeout(shortTimer);
       clearTimeout(backupTimer);
     };
-  }, [pathname, searchParams]) // Dependencies ensure effect runs on route change
+  }, [pathname]) // Dependencies ensure effect runs on route change
 
   if (!isLoading) return null
   
