@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -16,7 +16,7 @@ export default function NotFoundClient() {
         <h1 className="text-9xl font-bold text-primary">404</h1>
         <h2 className="mt-6 text-2xl font-semibold">Page Not Found</h2>
         <p className="mt-4 text-muted-foreground">
-          The page you’re looking for doesn’t exist or has been moved.
+          The page you&rsquo;re looking for doesn&rsquo;t exist or has been moved.
         </p>
         
         <div className="mt-8 flex flex-col sm:flex-row gap-4">
