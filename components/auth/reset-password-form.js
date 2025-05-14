@@ -47,7 +47,7 @@ export function ResetPasswordForm() {
         </div>
         <h3 className="text-xl font-medium">Check your email</h3>
         <p className="text-muted-foreground">
-          We've sent you a password reset link. Please check your email and follow the instructions.
+          We&apos;ve sent you a password reset link. Please check your email and follow the instructions.
         </p>
       </div>
     )

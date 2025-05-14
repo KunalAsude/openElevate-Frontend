@@ -46,7 +46,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>My Projects</CardTitle>
-              <CardDescription>Projects you've contributed to or created.</CardDescription>
+              <CardDescription>Projects you&apos;ve contributed to or created.</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">You have no projects yet.</p>

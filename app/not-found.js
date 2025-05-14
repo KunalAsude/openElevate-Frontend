@@ -19,7 +19,7 @@ export default function NotFound() {
         {/* Error Message */}
         <h2 className="mt-6 text-2xl font-semibold">Page Not Found</h2>
         <p className="mt-4 text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          The page you&rsquo;re looking for doesn&rsquo;t exist or has been moved.
         </p>
         
         {/* Action Buttons */}

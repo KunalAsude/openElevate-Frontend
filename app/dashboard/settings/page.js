@@ -183,7 +183,7 @@ function SettingsPage() {
                   <Label htmlFor="email-mentions" className="flex-1">
                     Mentions
                     <p className="text-sm font-normal text-muted-foreground">
-                      Receive notifications when you're mentioned
+                      Receive notifications when you&apos;re mentioned
                     </p>
                   </Label>
                   <Switch id="email-mentions" defaultChecked />
@@ -216,7 +216,7 @@ function SettingsPage() {
                   <Label htmlFor="push-mentions" className="flex-1">
                     Mentions
                     <p className="text-sm font-normal text-muted-foreground">
-                      Receive notifications when you're mentioned
+                      Receive notifications when you&apos;re mentioned
                     </p>
                   </Label>
                   <Switch id="push-mentions" defaultChecked />
