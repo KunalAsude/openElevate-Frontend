@@ -14,28 +14,65 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, LayoutDashboard } from "lucide-react"
+import { Menu, LayoutDashboard, User, Settings, LogOut, KeyRound, Github, Mail, Code, GitPullRequest, Users, BookOpen, Trophy, Star, PanelLeft, PanelRightClose, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Logo } from "@/components/layout/logo"
 
 export function Navbar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = React.useState(false)
   const [isLoggedIn, setIsLoggedIn] = React.useState(false)
-  
-  // Check if user is logged in
-  React.useEffect(() => {
-    // In a real app, you would check your authentication state here
-    // For example, with a token in localStorage or a cookie
-    const userToken = localStorage.getItem('user-token')
-    setIsLoggedIn(!!userToken)
-    
-    // For demo purposes, you can toggle this to test the logged in state
-    // setIsLoggedIn(true) 
-  }, [])
+  const [isHovered, setIsHovered] = React.useState(false)
 
-  // Custom nav link style without boxes
-  const navLinkStyle = "flex items-center px-3 py-2 text-sm font-medium transition-colors hover:text-primary"
-  const activeNavLinkStyle = "flex items-center px-3 py-2 text-sm font-medium text-primary"
+  // Get user data and check if logged in
+  const [userData, setUserData] = React.useState(null)
+
+  // Function to check authentication status
+  const checkAuthStatus = () => {
+    // Check for auth token in localStorage
+    const authToken = localStorage.getItem('authToken')
+    const userDataStr = localStorage.getItem('user')
+
+    if (authToken && userDataStr) {
+      try {
+        const parsedUserData = JSON.parse(userDataStr)
+        setUserData(parsedUserData)
+        setIsLoggedIn(true)
+        return true
+      } catch (e) {
+        console.error('Error parsing user data:', e)
+        setIsLoggedIn(false)
+        return false
+      }
+    } else {
+      setIsLoggedIn(false)
+      return false
+    }
+  }
+
+  // Check auth status on component mount and pathname change
+  React.useEffect(() => {
+    checkAuthStatus()
+
+    // Add event listener for storage changes (for cross-tab login/logout)
+    const handleStorageChange = () => {
+      checkAuthStatus()
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [pathname])
+
+  // Updated nav link styles with hover:text-primary
+  const navLinkStyle = "flex items-center px-3 py-2 text-[13px] font-medium transition-colors hover:text-primary"
+  const activeNavLinkStyle = "flex items-center px-3 py-2 text-[13px] font-medium text-primary"
 
   return (
     <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -89,7 +126,7 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           href="/projects/trending"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-primary"
                         >
                           <div className="text-sm font-medium leading-none">Trending</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -102,7 +139,7 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           href="/projects/new"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-primary"
                         >
                           <div className="text-sm font-medium leading-none">Submit Project</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -124,7 +161,7 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           href="/mentorship"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-primary focus:text-primary"
                         >
                           <div className="text-sm font-medium leading-none">Mentorship</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -137,7 +174,7 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           href="/ai/learning-path"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-primary focus:text-primary"
                         >
                           <div className="text-sm font-medium leading-none">Learning Paths</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -150,7 +187,7 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           href="/leaderboard"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-primary focus:text-primary"
                         >
                           <div className="text-sm font-medium leading-none">Leaderboard</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -163,7 +200,7 @@ export function Navbar() {
                       <NavigationMenuLink asChild>
                         <a
                           href="/about"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-primary focus:text-primary"
                         >
                           <div className="text-sm font-medium leading-none">About Us</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
@@ -190,27 +227,71 @@ export function Navbar() {
           <ThemeToggle />
           {isLoggedIn ? (
             <div className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" asChild>
-                <Link href="/dashboard">
-                  <span className="flex items-center">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
-                  </span>
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  localStorage.removeItem('user-token')
-                  setIsLoggedIn(false)
-                }}
-              >
-                Log out
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <p
+                    className={`flex items-center gap-2 rounded-md px-3 py-2 border border-border bg-background hover:bg-muted/50 hover:text-primary transition-colors ${isHovered ? 'text-primary bg-muted' : ''}`}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="font-medium">{userData?.name ? userData.name.split(' ')[0] : 'Profile'}</span>
+                    <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                  </p>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-background border-border shadow-lg">
+                  <div className="p-2 border-b border-border">
+                    <div className="font-medium">{userData?.name || 'User'}</div>
+                    <div className="text-xs text-muted-foreground truncate">{userData?.email || 'user@example.com'}</div>
+                  </div>
+                  <div className="p-1">
+                    <DropdownMenuItem asChild className="py-2 px-3 cursor-pointer focus:bg-muted hover:bg-muted hover:text-primary">
+                      <Link href="/dashboard" className="flex w-full items-center">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="py-2 px-3 cursor-pointer focus:bg-muted hover:bg-muted hover:text-primary">
+                      <Link href="/profile" className="flex w-full items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="py-2 px-3 cursor-pointer focus:bg-muted hover:bg-muted hover:text-primary">
+                      <Link href="/settings" className="flex w-full items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="py-2 px-3 cursor-pointer focus:bg-muted hover:bg-muted hover:text-primary">
+                      <Link href="/reset-password" className="flex w-full items-center">
+                        <KeyRound className="mr-2 h-4 w-4" />
+                        <span>Reset Password</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </div>
+                  <div className="border-t border-border p-1">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('user');
+                        setIsLoggedIn(false);
+                        // Dispatch storage event to notify other tabs
+                        window.dispatchEvent(new Event('storage'));
+                        window.location.href = '/';
+                      }}
+                      className="py-2 px-3 cursor-pointer focus:bg-muted hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" asChild className="hover:text-primary">
                 <Link href="/auth/login">Log in</Link>
               </Button>
               <Button asChild>
@@ -226,90 +307,135 @@ export function Navbar() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
-              <div className="grid gap-6 py-6">
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 text-lg font-semibold"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Logo />
-                </Link>
-                <div className="grid gap-3">
+            <SheetContent side="right" className="w-[260px] sm:w-[300px]">
+              <div className="flex flex-col h-full py-4">
+                <div className="flex items-center mb-4">
                   <Link
                     href="/"
-                    className="flex items-center gap-2 text-lg font-semibold"
+                    className="flex items-center gap-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Logo />
+                  </Link>
+                </div>
+
+                {isLoggedIn && userData && (
+                  <div className="px-1 mb-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                        <User className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{userData.name}</p>
+                        <p className="text-xs text-muted-foreground">{userData.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <nav className="space-y-0.5 mb-4">
+                  <Link
+                    href="/"
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/" ? "text-primary" : ""}`}
                     onClick={() => setIsOpen(false)}
                   >
                     Home
                   </Link>
                   <Link
                     href="/projects"
-                    className="flex items-center gap-2 text-lg font-semibold"
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/projects" ? "text-primary" : ""}`}
                     onClick={() => setIsOpen(false)}
                   >
                     Projects
                   </Link>
                   <Link
                     href="/mentorship"
-                    className="flex items-center gap-2 text-lg font-semibold"
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/mentorship" ? "text-primary" : ""}`}
                     onClick={() => setIsOpen(false)}
                   >
                     Mentorship
                   </Link>
                   <Link
                     href="/leaderboard"
-                    className="flex items-center gap-2 text-lg font-semibold"
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/leaderboard" ? "text-primary" : ""}`}
                     onClick={() => setIsOpen(false)}
                   >
                     Leaderboard
                   </Link>
                   <Link
                     href="/about"
-                    className="flex items-center gap-2 text-lg font-semibold"
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/about" ? "text-primary" : ""}`}
                     onClick={() => setIsOpen(false)}
                   >
                     About
                   </Link>
                   <Link
                     href="/faq"
-                    className="flex items-center gap-2 text-lg font-semibold"
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/faq" ? "text-primary" : ""}`}
                     onClick={() => setIsOpen(false)}
                   >
                     FAQ
                   </Link>
-                </div>
-                <div className="grid gap-2">
-                  {isLoggedIn ? (
-                    <>
-                      <Button asChild variant="outline" onClick={() => setIsOpen(false)}>
-                        <Link href="/dashboard" className="flex items-center gap-2">
-                          <LayoutDashboard className="h-4 w-4" />
-                          Dashboard
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          localStorage.removeItem('user-token')
-                          setIsLoggedIn(false)
-                          setIsOpen(false)
-                        }}
-                      >
-                        Log out
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button asChild variant="outline" onClick={() => setIsOpen(false)}>
-                        <Link href="/auth/login">Log in</Link>
-                      </Button>
-                      <Button asChild onClick={() => setIsOpen(false)}>
-                        <Link href="/auth/register">Sign up</Link>
-                      </Button>
-                    </>
-                  )}
-                </div>
+                </nav>
+
+                {isLoggedIn ? (
+                  <div className="space-y-0.5">
+                    <p className="px-2 text-[10px] uppercase text-muted-foreground font-medium tracking-wider">Account</p>
+                    <Link
+                      href="/dashboard"
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/dashboard" ? "text-primary" : ""}`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <LayoutDashboard className="h-3.5 w-3.5" />
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/profile" ? "text-primary" : ""}`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <User className="h-3.5 w-3.5" />
+                      Profile
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm ${pathname === "/settings" ? "text-primary" : ""}`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Settings className="h-3.5 w-3.5" />
+                      Settings
+                    </Link>
+                    <button
+                      className="flex w-full items-center gap-2 px-2 py-1.5 rounded-md hover:text-primary text-sm text-left"
+                      onClick={() => {
+                        localStorage.removeItem('authToken')
+                        localStorage.removeItem('user')
+                        setUserData(null)
+                        setIsLoggedIn(false)
+                        // Dispatch storage event to notify other tabs
+                        window.dispatchEvent(new Event('storage'))
+                        setIsOpen(false)
+                        window.location.href = '/'
+                      }}
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Log out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-auto space-y-2 px-1">
+                    <Button asChild className="w-full justify-start hover:text-primary" variant="outline" onClick={() => setIsOpen(false)}>
+                      <Link href="/auth/login" className="flex items-center gap-2">
+                        Log in
+                      </Link>
+                    </Button>
+                    <Button asChild className="w-full justify-start" onClick={() => setIsOpen(false)}>
+                      <Link href="/auth/register" className="flex items-center gap-2">
+                        Sign up
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>

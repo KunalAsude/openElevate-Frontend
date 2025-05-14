@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { 
-  LayoutDashboard, 
-  Code, 
+import {
+  LayoutDashboard,
+  Code,
   GitPullRequest,
   Award,
   BarChart2,
@@ -18,51 +18,77 @@ import {
   BookOpen,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  PanelLeft,
+  PanelRightClose,
 } from "lucide-react"
 import { Logo } from "@/components/layout/logo"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 
-// Use React.memo to prevent unnecessary re-renders
-export const Sidebar = React.memo(function Sidebar({ 
-  isCollapsed, 
-  onToggleCollapse,
-  className
-}) {
+
+export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollapse, className }) {
   const pathname = usePathname()
-  // Use internal state if no external control is provided
+
   const [internalCollapsed, setInternalCollapsed] = useState(false)
-  
-  // Determine if we're using external or internal state
+
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed
-  
-  // Preserve collapsed state across page reloads (only if using internal state)
+
   useEffect(() => {
-    // Only initialize from localStorage if we're using internal state
     if (isCollapsed === undefined) {
-      const savedCollapsed = localStorage.getItem('sidebarCollapsed')
+      const savedCollapsed = localStorage.getItem("sidebarCollapsed")
       if (savedCollapsed !== null) {
-        setInternalCollapsed(savedCollapsed === 'true')
+        setInternalCollapsed(savedCollapsed === "true")
       }
     }
-  }, [])
+  }, [isCollapsed])
 
   const toggleCollapse = () => {
-    // If external control is provided, use that
     if (onToggleCollapse) {
+      // Use the external handler which will handle the state
       onToggleCollapse(!collapsed)
     } else {
-      // Otherwise use internal state
+      // Handle internal state
       const newCollapsed = !internalCollapsed
       setInternalCollapsed(newCollapsed)
-      localStorage.setItem('sidebarCollapsed', String(newCollapsed))
+      localStorage.setItem("sidebarCollapsed", String(newCollapsed))
+      
+      // Force immediate redraw
+      document.body.classList.toggle('sidebar-collapsed', newCollapsed)
+      
+      // Force browser to recalculate layout immediately
+      window.requestAnimationFrame(() => {
+        window.dispatchEvent(new Event('resize'))
+      })
+      
+      // Add a timeout to reload the main content after 1 second
+      setTimeout(() => {
+        // Force a layout recalculation
+        const mainContent = document.querySelector('main')
+        if (mainContent) {
+          // Temporarily adjust the display to force a reflow
+          const originalDisplay = mainContent.style.display
+          mainContent.style.display = 'none'
+          
+          // Force a reflow by accessing offsetHeight
+          void mainContent.offsetHeight
+          
+          // Restore the original display
+          mainContent.style.display = originalDisplay
+        }
+        
+        // Dispatch a custom event that can be listened to by other components
+        window.dispatchEvent(new CustomEvent('sidebarToggled', { detail: { collapsed: newCollapsed } }))
+        
+        // Force another resize event for good measure
+        window.dispatchEvent(new Event('resize'))
+      }, 1000)
     }
   }
 
   const navItems = [
     {
-      title: "Dashboard",
+      title: "",
       items: [
         {
           href: "/dashboard",
@@ -97,7 +123,8 @@ export const Sidebar = React.memo(function Sidebar({
       ],
     },
     {
-      title: "Mentorship",
+      title: "",
+      divider: true,
       items: [
         {
           href: "/mentorship",
@@ -120,7 +147,8 @@ export const Sidebar = React.memo(function Sidebar({
       ],
     },
     {
-      title: "Explore",
+      title: "",
+      divider: true,
       items: [
         {
           href: "/explorer",
@@ -145,103 +173,117 @@ export const Sidebar = React.memo(function Sidebar({
   ]
 
   return (
-    <aside 
+    <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen border-r border-border bg-background transition-all duration-300",
-        collapsed ? "w-[70px]" : "w-[250px]"
+        "fixed left-0 top-12 z-40 h-[calc(100vh-48px)] bg-background transition-all duration-300 flex flex-col",
+        collapsed ? "w-[70px]" : "w-[250px]",
+        className,
       )}
     >
-      <div className="flex h-16 items-center justify-between border-b border-border px-3">
-        {!collapsed && (
-          <Link href="/" className="flex items-center gap-2">
-            <Logo />
-            <span className="font-semibold">OpenElevate</span>
-          </Link>
-        )}
-        {collapsed && (
-          <Link href="/" className="mx-auto">
-            <Logo />
-          </Link>
-        )}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className={cn("absolute -right-3 top-5 h-7 w-7 bg-background border border-border rounded-full shadow-sm hover:bg-accent", 
-            collapsed ? "rotate-180 transform transition-transform duration-300" : "transition-transform duration-300"
-          )}
+      <div className="flex h-16 items-center px-3 relative">
+        {/* Collapse button in the left corner */}
+        <div 
           onClick={toggleCollapse}
+          className="cursor-pointer hover:opacity-80 transition-opacity"
+          role="button"
+          tabIndex={0}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-6 py-4">
-        {navItems.map((section, i) => (
-          <div key={i} className={cn(collapsed ? "px-2" : "px-3")}>
-            {!collapsed && (
-              <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground">
-                {section.title}
-              </h3>
-            )}
-            {collapsed && (
-              <div className="h-[1px] bg-border mx-2 mb-4"></div>
-            )}
-            <div className="space-y-1">
-              {section.items.map((item, j) => (
-                <Link 
-                  key={j}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center rounded-md text-sm font-medium transition-colors",
-                    item.active 
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    collapsed 
-                      ? "justify-center h-10 w-10 mx-auto p-0 tooltip-wrapper" 
-                      : "w-full gap-3 px-2 py-2"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "h-5 w-5", 
-                    collapsed ? "mx-0" : "mr-1"
-                  )} />
-                  {collapsed && (
-                    <span className="tooltip">{item.label}</span>
-                  )}
-                  {!collapsed && <span>{item.label}</span>}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className={cn(
-        "absolute bottom-0 left-0 right-0 border-t border-border p-4",
-        collapsed ? "flex justify-center" : ""
-      )}>
-        <div className={cn(
-          "flex items-center",
-          collapsed ? "flex-col gap-2" : "gap-3"
-        )}>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder-user.jpg" alt="User avatar" />
-            <AvatarFallback>U</AvatarFallback>
-          </Avatar>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">User</span>
-              <span className="text-xs text-muted-foreground">user@example.com</span>
-            </div>
-          )}
-          {!collapsed && (
-            <Link href="/settings" className="ml-auto">
-              <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-            </Link>
+          {collapsed ? (
+            <PanelRightClose variant="ghost" className="h-10 w-10 mt-5 text-gray-400" />
+          ) : (
+            <PanelLeft variant="ghost" className="h-10 w-10 mt-5 text-gray-400" />
           )}
         </div>
       </div>
+
+      <div className="flex-1 overflow-y-auto py-3 scrollbar-thin">
+        <div className="flex flex-col gap-4">
+          {navItems.map((section, i) => (
+            <div key={i} className={cn(collapsed ? "px-2" : "px-3")}>
+              {!collapsed && section.title && (
+                <h3 className="mb-1 px-2 text-base font-medium text-muted-foreground">{section.title}</h3>
+              )}
+              {!collapsed && section.divider && (
+                <div className="h-[1px] bg-border mx-2 my-2"></div>
+              )}
+              {collapsed && <div className="h-[1px] bg-border mx-1 mb-3"></div>}
+              <div className="space-y-2">
+                {section.items.map((item, j) => (
+                  <Link
+                    key={j}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center rounded-md transition-colors",
+                      pathname === item.href && "bg-primary text-primary-foreground font-medium",
+                      item.active
+                        ? "bg-primary text-primary-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                      collapsed ? "justify-center h-12 w-full p-2 tooltip-wrapper" : "w-full gap-4 px-4 py-3",
+                    )}
+                  >
+                    <item.icon className={cn(collapsed ? "h-6 w-6" : "h-6 w-6", collapsed ? "mx-0" : "mr-2")} />
+                    {collapsed && <span className="tooltip">{item.label}</span>}
+                    {!collapsed && <span className="text-base">{item.label}</span>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          "border-t border-border p-3 mt-auto",
+          collapsed ? "flex justify-center" : "",
+        )}
+      >
+      </div>
+
+      {/* Tooltip styles */}
+      <style jsx global>{`
+        .tooltip-wrapper {
+          position: relative;
+        }
+        .tooltip-wrapper .tooltip {
+          visibility: hidden;
+          position: absolute;
+          left: 100%;
+          background-color: hsl(var(--background));
+          color: hsl(var(--foreground));
+          text-align: center;
+          border-radius: 6px;
+          padding: 5px 10px;
+          margin-left: 10px;
+          z-index: 1;
+          opacity: 0;
+          transition: opacity 0.3s;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          border: 1px solid hsl(var(--border));
+          font-size: 12px;
+          white-space: nowrap;
+        }
+        .tooltip-wrapper:hover .tooltip {
+          visibility: visible;
+          opacity: 1;
+        }
+        
+        /* Custom scrollbar styles */
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: hsl(var(--border));
+          border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: hsl(var(--muted-foreground));
+        }
+      `}</style>
     </aside>
   )
 })

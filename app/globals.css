@@ -8,7 +8,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding: 0px;
-    font-size: 16px; /* Base font size for responsive typography */
+    font-size: 14px; /* Reduced base font size for smaller text throughout the app */
   }
   
   /* Hide scrollbar completely for Chrome, Safari and Opera */
@@ -108,7 +108,7 @@
   /* Extra small devices (phones) */
   @media (max-width: 639px) {
     html {
-      font-size: 14px; /* Slightly smaller base font for tiny screens */
+      font-size: 12px; /* Smaller base font for tiny screens */
     }
     
     .container-fluid {
@@ -497,13 +497,20 @@ p {
     }
   }
   
-  /* Navigation styles with responsive adjustments */
-  .nav-link {
-    @apply px-3 py-2 text-sm font-medium rounded-md hover:bg-secondary hover:text-secondary-foreground transition-colors;
+  /* Container sizing for consistent layout */
+  .container {
+    @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
   }
   
-  .nav-link-active {
-    @apply bg-secondary text-secondary-foreground;
+  /* Dashboard content adjustment classes */
+  .dashboard-content {
+    padding: 1rem;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+  }
+  
+  .content-adjusting {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
   }
   
   /* Mobile navigation adjustments */
@@ -513,7 +520,7 @@ p {
     }
     
     .nav-link {
-      @apply px-2 py-1.5 text-xs;
+      @apply px-2 py-1.5 text-sm;
     }
   }
   

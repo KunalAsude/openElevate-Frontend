@@ -36,7 +36,7 @@ export function ProjectsSection() {
   ]
 
   return (
-    <section className="bg-muted/30 py-20 md:py-24 lg:py-32">
+    <section className="bg-muted/30 py-16 md:py-20 lg:py-24">
       <div className="container">
         <div className="mx-auto max-w-[800px] text-center">
           <Badge className="mb-4" variant="outline">
@@ -48,7 +48,7 @@ export function ProjectsSection() {
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <Card key={project.id} className="flex flex-col overflow-hidden transition-all hover:shadow-md">
               <CardHeader className="pb-3">

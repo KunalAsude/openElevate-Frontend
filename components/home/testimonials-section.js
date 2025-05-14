@@ -32,7 +32,7 @@ export function TestimonialsSection() {
   ]
 
   return (
-    <section className="py-20 md:py-24 lg:py-32">
+    <section className="py-16 md:py-20 lg:py-24">
       <div className="container">
         <div className="mx-auto max-w-[800px] text-center">
           <Badge className="mb-4" variant="outline">
@@ -44,7 +44,7 @@ export function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-3">
           {testimonials.map((testimonial) => (
             <Card key={testimonial.id} className="relative overflow-hidden">
               <div className="absolute right-4 top-4 text-primary/10">

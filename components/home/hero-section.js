@@ -4,7 +4,7 @@ import { ArrowRight, Code, GitPullRequest, Users } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-background py-10 sm:py-12 md:py-16 lg:py-20 xl:py-20">
+    <section className="relative overflow-hidden bg-background py-12 sm:py-16 md:py-20 lg:py-24">
       {/* Light, subtle grid background */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
 

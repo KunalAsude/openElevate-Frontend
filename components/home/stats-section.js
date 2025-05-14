@@ -3,7 +3,7 @@ import { Code, GitPullRequest, Star, Users } from "lucide-react"
 export function StatsSection() {
   return (
     <section className="border-t border-border">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+      <div className="container py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center">
             <div className="flex items-center mb-1 sm:mb-0">

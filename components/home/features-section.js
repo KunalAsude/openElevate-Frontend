@@ -3,7 +3,7 @@ import { Brain, Code, GitPullRequest, Star, Trophy, Users } from "lucide-react"
 
 export function FeaturesSection() {
   return (
-    <section className="py-20 md:py-24 lg:py-32">
+    <section className="py-16 md:py-20 lg:py-24">
       <div className="container">
         <div className="mx-auto max-w-[800px] text-center">
           <Badge className="mb-4" variant="outline">
@@ -18,7 +18,7 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div className="group rounded-lg border bg-background p-6 shadow-sm transition-all hover:shadow-md">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
               <Code className="h-6 w-6" />
