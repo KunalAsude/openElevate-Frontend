@@ -6,8 +6,8 @@ import { Facebook, Github, Instagram, Linkedin, Twitter } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="bg-muted/40">
-      <div className="container py-12 md:py-16">
+    <footer className="border-t border-border bg-background">
+      <div className="mx-auto max-w-8xl px-4 py-10">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
             <Logo />
@@ -108,10 +108,23 @@ export function Footer() {
             </form>
           </div>
         </div>
-        <div className="mt-12 border-t pt-8">
-          <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} OpenElevate. All rights reserved.
-          </p>
+        <div className="mt-8 border-t border-border pt-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} OpenElevate. All rights reserved.
+            </p>
+            <div className="mt-4 sm:mt-0 flex space-x-6">
+              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground">
+                Terms of Service
+              </Link>
+              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">
+                Privacy Policy
+              </Link>
+              <Link href="/cookies" className="text-xs text-muted-foreground hover:text-foreground">
+                Cookie Policy
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

@@ -12,33 +12,64 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
+import { Menu, LayoutDashboard } from "lucide-react"
 import { Logo } from "@/components/layout/logo"
 
 export function Navbar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false)
+  
+  // Check if user is logged in
+  React.useEffect(() => {
+    // In a real app, you would check your authentication state here
+    // For example, with a token in localStorage or a cookie
+    const userToken = localStorage.getItem('user-token')
+    setIsLoggedIn(!!userToken)
+    
+    // For demo purposes, you can toggle this to test the logged in state
+    // setIsLoggedIn(true) 
+  }, [])
+
+  // Custom nav link style without boxes
+  const navLinkStyle = "flex items-center px-3 py-2 text-sm font-medium transition-colors hover:text-primary"
+  const activeNavLinkStyle = "flex items-center px-3 py-2 text-sm font-medium text-primary"
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto max-w-8xl px-4 flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
             <Logo />
           </Link>
 
           <NavigationMenu className="hidden md:flex">
-            <NavigationMenuList>
+            <NavigationMenuList className="flex gap-1">
               <NavigationMenuItem>
                 <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
+                  <NavigationMenuLink className={pathname === "/" ? activeNavLinkStyle : navLinkStyle}>
+                    Home
+                  </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+              {isLoggedIn && (
+                <NavigationMenuItem>
+                  <Link href="/dashboard" legacyBehavior passHref>
+                    <NavigationMenuLink className={pathname === "/dashboard" ? activeNavLinkStyle : navLinkStyle}>
+                      <span className="flex items-center gap-1">
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
+                      </span>
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              )}
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
+                  <span className={navLinkStyle}>Projects</span>
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
                     <li className="row-span-3">
@@ -84,7 +115,9 @@ export function Navbar() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
+                  <span className={navLinkStyle}>Resources</span>
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                     <li>
@@ -144,7 +177,9 @@ export function Navbar() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/faq" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>FAQ</NavigationMenuLink>
+                  <NavigationMenuLink className={pathname === "/faq" ? activeNavLinkStyle : navLinkStyle}>
+                    FAQ
+                  </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -153,14 +188,36 @@ export function Navbar() {
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Log in</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/register">Sign up</Link>
-            </Button>
-          </div>
+          {isLoggedIn ? (
+            <div className="hidden md:flex items-center gap-4">
+              <Button variant="ghost" asChild>
+                <Link href="/dashboard">
+                  <span className="flex items-center">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </span>
+                </Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  localStorage.removeItem('user-token')
+                  setIsLoggedIn(false)
+                }}
+              >
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-4">
+              <Button variant="ghost" asChild>
+                <Link href="/auth/login">Log in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/auth/register">Sign up</Link>
+              </Button>
+            </div>
+          )}
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="md:hidden">
@@ -223,12 +280,35 @@ export function Navbar() {
                   </Link>
                 </div>
                 <div className="grid gap-2">
-                  <Button asChild variant="outline" onClick={() => setIsOpen(false)}>
-                    <Link href="/auth/login">Log in</Link>
-                  </Button>
-                  <Button asChild onClick={() => setIsOpen(false)}>
-                    <Link href="/auth/register">Sign up</Link>
-                  </Button>
+                  {isLoggedIn ? (
+                    <>
+                      <Button asChild variant="outline" onClick={() => setIsOpen(false)}>
+                        <Link href="/dashboard" className="flex items-center gap-2">
+                          <LayoutDashboard className="h-4 w-4" />
+                          Dashboard
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          localStorage.removeItem('user-token')
+                          setIsLoggedIn(false)
+                          setIsOpen(false)
+                        }}
+                      >
+                        Log out
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button asChild variant="outline" onClick={() => setIsOpen(false)}>
+                        <Link href="/auth/login">Log in</Link>
+                      </Button>
+                      <Button asChild onClick={() => setIsOpen(false)}>
+                        <Link href="/auth/register">Sign up</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

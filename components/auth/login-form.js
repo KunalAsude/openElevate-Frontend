@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Github } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export function LoginForm() {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const router = useRouter()
 
   async function onSubmit(event) {
     event.preventDefault()
@@ -19,6 +21,8 @@ export function LoginForm() {
     setTimeout(() => {
       setIsLoading(false)
     }, 1000)
+
+    router.push('/dashboard')
   }
 
   return (

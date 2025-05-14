@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from "@/components/layout/sidebar"
 import { cn } from "@/lib/utils"
 
-export default function DashboardLayout({ children }) {
+export function DashboardLayout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   
   // Get sidebar state from localStorage to keep layout consistent
@@ -15,22 +15,18 @@ export default function DashboardLayout({ children }) {
     }
   }, [])
 
-  // Listen for changes to the sidebar collapsed state
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedCollapsed = localStorage.getItem('sidebarCollapsed')
-      if (savedCollapsed !== null) {
-        setSidebarCollapsed(savedCollapsed === 'true')
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+  // Handle sidebar toggle and persist state
+  const handleToggleSidebar = (newState) => {
+    setSidebarCollapsed(newState)
+    localStorage.setItem('sidebarCollapsed', String(newState))
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar />
+      <Sidebar 
+        isCollapsed={sidebarCollapsed} 
+        onToggleCollapse={handleToggleSidebar} 
+      />
       <div 
         className={cn(
           "flex-1 transition-all duration-300 overflow-auto",
@@ -38,7 +34,7 @@ export default function DashboardLayout({ children }) {
         )}
       >
         <main className="flex-1">
-          <div className="p-6">
+          <div className="container mx-auto p-6">
             {children}
           </div>
         </main>

@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import { Github } from "lucide-react"
 
 export function RegisterForm() {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isLoading, setIsLoading] = React.useState(false)
 
   async function onSubmit(event) {
     event.preventDefault()

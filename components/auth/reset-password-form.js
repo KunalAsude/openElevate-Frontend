@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export function ResetPasswordForm() {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [isSubmitted, setIsSubmitted] = React.useState<boolean>(false)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [isSubmitted, setIsSubmitted] = React.useState(false)
 
   async function onSubmit(event) {
     event.preventDefault()

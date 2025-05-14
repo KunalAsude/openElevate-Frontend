@@ -4,11 +4,14 @@ import { ArrowRight, Code, GitPullRequest, Users } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-background py-20 md:py-24 lg:py-32">
-      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-      <div className="container relative z-10">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 xl:gap-16">
-          <div className="flex flex-col justify-center space-y-8">
+    <section className="relative overflow-hidden bg-background py-16 md:py-20 lg:py-24">
+      {/* Light, subtle grid background */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      
+      {/* Main content container with proper max-width */}
+      <div className="relative z-10 mx-auto max-w-8xl px-4">
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-12 items-center">
+          <div className="flex flex-col justify-center space-y-6">
             <div className="space-y-6">
               <div className="inline-flex items-center rounded-full border bg-background px-3 py-1 text-sm">
                 <span className="mr-2 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
