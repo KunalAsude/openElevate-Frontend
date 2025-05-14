@@ -70,9 +70,9 @@ export function Navbar() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [pathname])
 
-  // Updated nav link styles with hover:text-primary
-  const navLinkStyle = "flex items-center px-3 py-2 text-[13px] font-medium transition-colors hover:text-primary"
-  const activeNavLinkStyle = "flex items-center px-3 py-2 text-[13px] font-medium text-primary"
+  // Updated nav link styles with consistent hover and active states - preventing green background on click
+  const navLinkStyle = "flex items-center px-3 py-2 text-[13px] font-medium transition-colors hover:text-primary focus:text-primary focus:bg-transparent relative focus:outline-none"
+  const activeNavLinkStyle = "flex items-center px-3 py-2 text-[13px] font-medium text-primary relative after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-primary after:rounded-full focus:bg-transparent focus:outline-none"
 
   return (
     <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -94,7 +94,7 @@ export function Navbar() {
               {isLoggedIn && (
                 <NavigationMenuItem>
                   <Link href="/dashboard" legacyBehavior passHref>
-                    <NavigationMenuLink className={pathname === "/dashboard" ? activeNavLinkStyle : navLinkStyle}>
+                    <NavigationMenuLink className={pathname.startsWith("/dashboard") ? activeNavLinkStyle : navLinkStyle}>
                       <span className="flex items-center gap-1">
                         <LayoutDashboard className="h-4 w-4" />
                         Dashboard
@@ -104,8 +104,8 @@ export function Navbar() {
                 </NavigationMenuItem>
               )}
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
-                  <span className={navLinkStyle}>Projects</span>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent data-[state=open]:bg-transparent hover:text-primary focus:text-primary">
+                  <span className={pathname.startsWith("/project") ? activeNavLinkStyle : navLinkStyle}>Projects</span>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
@@ -152,8 +152,8 @@ export function Navbar() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
-                  <span className={navLinkStyle}>Resources</span>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent data-[state=open]:bg-transparent hover:text-primary focus:text-primary">
+                  <span className={pathname.includes("/mentorship") || pathname.includes("/learning-path") || pathname.includes("/leaderboard") || pathname.includes("/about") ? activeNavLinkStyle : navLinkStyle}>Resources</span>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
@@ -214,7 +214,7 @@ export function Navbar() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/faq" legacyBehavior passHref>
-                  <NavigationMenuLink className={pathname === "/faq" ? activeNavLinkStyle : navLinkStyle}>
+                  <NavigationMenuLink className={pathname.startsWith("/faq") ? activeNavLinkStyle : navLinkStyle}>
                     FAQ
                   </NavigationMenuLink>
                 </Link>
@@ -291,7 +291,7 @@ export function Navbar() {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" asChild className="hover:text-primary">
+              <Button variant="ghost" asChild className="hover:text-primary hover:bg-muted/50 focus:bg-muted/50 focus:text-primary active:bg-muted/50 transition-colors outline-none">
                 <Link href="/auth/login">Log in</Link>
               </Button>
               <Button asChild>
