@@ -1,13 +1,19 @@
-import { HeroSection } from "@/components/home/hero-section"
-import { FeaturesSection } from "@/components/home/features-section"
-import { ProjectsSection } from "@/components/home/projects-section"
-import { TestimonialsSection } from "@/components/home/testimonials-section"
-import { StatsSection } from "@/components/home/stats-section"
-import { CtaSection } from "@/components/home/cta-section"
-import { PartnersSection } from "@/components/home/partners-section"
+'use client';
 
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { HeroSection } from "@/components/home/hero-section";
+import { FeaturesSection } from "@/components/home/features-section";
+import { ProjectsSection } from "@/components/home/projects-section";
+import { TestimonialsSection } from "@/components/home/testimonials-section";
+import { StatsSection } from "@/components/home/stats-section";
+import { CtaSection } from "@/components/home/cta-section";
+import { PartnersSection } from "@/components/home/partners-section";
 
-export default function Home() {
+function HomeContent() {
+  // Add useSearchParams hook to handle Next.js CSR bailout
+  const searchParams = useSearchParams();
+  
   return (
     <>
       <HeroSection />
@@ -18,5 +24,13 @@ export default function Home() {
       <PartnersSection />
       <CtaSection />
     </>
-  )
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading homepage...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
 }
