@@ -1,9 +1,9 @@
-import { Suspense } from "react";
-import NotFoundClient from "./NotFoundClient";
+import { Suspense } from 'react';
+import NotFoundClient from './NotFoundPage';
 
-export default function NotFoundPage() {
+export default function NotFoundWrapper() {
   return (
-    <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
+    <Suspense fallback={<div>Loading...</div>}>
       <NotFoundClient />
     </Suspense>
   );
