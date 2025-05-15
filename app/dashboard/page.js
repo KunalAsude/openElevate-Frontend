@@ -13,7 +13,7 @@ import { StatsCards } from "@/components/dashboard/stats-cards"
 function DashboardContent() {
   return (
     <DashboardShell>
-      <DashboardHeader heading="Dashboard" text="Welcome back! Here&rsquos an overview of your open source journey." />
+      <DashboardHeader heading="Dashboard" text="Welcome back! Here&rsquo;s an overview of your open source journey." />
 
       <StatsCards />
 
