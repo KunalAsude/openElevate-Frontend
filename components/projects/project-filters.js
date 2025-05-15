@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from "react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +29,7 @@ const TOPICS = [
 
 const ISSUE_LABELS = ["good first issue", "help wanted", "bug", "enhancement", "documentation"]
 
-export function ProjectFilters({ onFilterChange, onMobileClose, isMobile = false, collapsed = false }) {
+function ProjectFiltersInner({ onFilterChange, onMobileClose, isMobile = false, collapsed = false }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -355,5 +356,18 @@ export function ProjectFilters({ onFilterChange, onMobileClose, isMobile = false
         )}
       </div>
     </div>
+  )
+}
+
+// Export the component wrapped in Suspense
+export function ProjectFilters(props) {
+  return (
+    <Suspense fallback={
+      <div className="w-full flex justify-center py-4">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <ProjectFiltersInner {...props} />
+    </Suspense>
   )
 }

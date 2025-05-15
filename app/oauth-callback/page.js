@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
-export default function OAuthCallback() {
+function CallbackContent() {
   const [status, setStatus] = useState('Processing authentication...');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,16 +64,29 @@ export default function OAuthCallback() {
   }, [router, searchParams]);
 
   return (
+    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <h2 className="text-lg font-medium">{status}</h2>
+      <p className="text-sm text-muted-foreground">
+        You&lsquo;ll be redirected to your dashboard in a moment...
+      </p>
+    </div>
+  );
+}
+
+export default function OAuthCallback() {
+  return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <h2 className="text-lg font-medium">{status}</h2>
-            <p className="text-sm text-muted-foreground">
-              You&lsquo;ll be redirected to your dashboard in a moment...
-            </p>
-          </div>
+          <Suspense fallback={
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <h2 className="text-lg font-medium">Loading...</h2>
+            </div>
+          }>
+            <CallbackContent />
+          </Suspense>
         </CardContent>
       </Card>
     </div>
