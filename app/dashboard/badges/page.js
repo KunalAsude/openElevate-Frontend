@@ -58,7 +58,7 @@ function BadgesContent() {
         console.error('Error fetching badges:', error)
         setError("Failed to load GitHub badges")
         
-        // If API fails, generate badges based on user's GitHub activity
+        // If API fails, generate badges based on user GitHub activity
         generateBadgesFromGitHub()
       } finally {
         setLoading(false)

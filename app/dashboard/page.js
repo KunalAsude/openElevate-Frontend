@@ -39,7 +39,7 @@ function DashboardContent() {
 
   return (
     <DashboardShell>
-      <DashboardHeader heading="Dashboard" text="Welcome back! Here's an overview of your open source journey." />
+      <DashboardHeader heading="Dashboard" text="Welcome back! Here&lsquo;s an overview of your open source journey." />
 
       {/* GitHub Stats Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">

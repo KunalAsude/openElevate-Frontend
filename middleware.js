@@ -16,7 +16,7 @@ export function middleware(request) {
     pathname === path || pathname.startsWith(`${path}/`)
   );
   
-  // If it's not a protected path, allow the request
+  // If it not a protected path, allow the request
   if (!isProtectedPath) {
     return NextResponse.next();
   }
@@ -24,7 +24,7 @@ export function middleware(request) {
   // Get the authentication token from cookies
   const authToken = request.cookies.get('authToken')?.value;
   
-  // If there's no token and the path is protected, redirect to the login page
+  // If there no token and the path is protected, redirect to the login page
   if (!authToken) {
     const url = new URL('/auth/login', request.url);
     // Add the current path as a redirect parameter
