@@ -44,7 +44,7 @@ export default function GitHubCallbackPage() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <h2 className="text-lg font-medium">{status}</h2>
             <p className="text-sm text-muted-foreground">
-              You'll be redirected to your dashboard in a moment...
+              You&lsquo;ll be redirected to your dashboard in a moment...
             </p>
           </div>
         </CardContent>

@@ -30,7 +30,7 @@ export default function OAuthCallback() {
       // Also store login time (useful for tracking token expiry)
       localStorage.setItem('authTime', new Date().toISOString());
       
-      // Try to extract user info from token if it's a JWT
+    
       if (token.split('.').length === 3) {
         try {
           const tokenParts = token.split('.');
@@ -71,7 +71,7 @@ export default function OAuthCallback() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <h2 className="text-lg font-medium">{status}</h2>
             <p className="text-sm text-muted-foreground">
-              You'll be redirected to your dashboard in a moment...
+              You&lsquo;ll be redirected to your dashboard in a moment...
             </p>
           </div>
         </CardContent>
