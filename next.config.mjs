@@ -1,4 +1,12 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = {
+    images: {
+      domains: ['avatars.githubusercontent.com'],
+    },
+    experimental: {
+      serverActions: true,
+    },
+  };
+  
+  export default nextConfig;
+  

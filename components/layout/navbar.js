@@ -85,22 +85,22 @@ export function Navbar() {
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList className="flex gap-1">
               <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className={pathname === "/" ? activeNavLinkStyle : navLinkStyle}>
+                <NavigationMenuLink asChild>
+                  <Link href="/" className={pathname === "/" ? activeNavLinkStyle : navLinkStyle}>
                     Home
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
               {isLoggedIn && (
                 <NavigationMenuItem>
-                  <Link href="/dashboard" legacyBehavior passHref>
-                    <NavigationMenuLink className={pathname.startsWith("/dashboard") ? activeNavLinkStyle : navLinkStyle}>
+                  <NavigationMenuLink asChild>
+                    <Link href="/dashboard" className={pathname.startsWith("/dashboard") ? activeNavLinkStyle : navLinkStyle}>
                       <span className="flex items-center gap-1">
                         <LayoutDashboard className="h-4 w-4" />
                         Dashboard
                       </span>
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
               <NavigationMenuItem>
@@ -213,11 +213,11 @@ export function Navbar() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/faq" legacyBehavior passHref>
-                  <NavigationMenuLink className={pathname.startsWith("/faq") ? activeNavLinkStyle : navLinkStyle}>
+                <NavigationMenuLink asChild>
+                  <Link href="/faq" className={pathname.startsWith("/faq") ? activeNavLinkStyle : navLinkStyle}>
                     FAQ
-                  </NavigationMenuLink>
-                </Link>
+                  </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>

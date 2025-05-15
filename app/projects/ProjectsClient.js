@@ -1,78 +1,282 @@
-'use client';
+"use client"
 
-import { Suspense } from 'react';
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
+import { useDebounceValue } from "@/lib/hooks/use-debounce"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Filter, SlidersHorizontal } from "lucide-react"
+import { getCurrentUser } from "@/lib/actions/auth-actions"
+import { fetchTrendingProjects, fetchRecommendedProjects, searchProjects } from "@/lib/services/project-service"
 
-function ProjectsContent() {
+// Import project components
+import { ProjectCard } from "@/components/projects/project-card"
+import { ProjectFilters } from "@/components/projects/project-filters"
+import { ProjectsSidebar } from "@/components/projects/projects-sidebar"
+
+// Skeleton for loading projects
+function ProjectCardSkeleton() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Open Source Projects</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Project cards will go here */}
-        <ProjectCard 
-          title="Project Alpha"
-          description="A powerful open-source tool for data analysis and visualization"
-          tags={['JavaScript', 'React', 'Data Visualization']}
-          stars={245}
-          forks={84}
-        />
-        <ProjectCard 
-          title="CodeCollab"
-          description="Real-time collaborative coding platform for distributed teams"
-          tags={['TypeScript', 'WebSockets', 'Node.js']}
-          stars={189}
-          forks={52}
-        />
-        <ProjectCard 
-          title="DevFlow"
-          description="Streamline your development workflow with this CI/CD automation tool"
-          tags={['Python', 'DevOps', 'Docker']}
-          stars={312}
-          forks={97}
-        />
+    <div className="border border-border rounded-lg p-6 bg-card">
+      <div className="flex items-start space-x-2 mb-3">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+      </div>
+      <Skeleton className="h-12 w-full mb-4" />
+      <div className="flex gap-2 mb-4">
+        <Skeleton className="h-6 w-16 rounded-full" />
+        <Skeleton className="h-6 w-20 rounded-full" />
+      </div>
+      <div className="flex gap-3 mb-4">
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-4 w-14" />
+        <Skeleton className="h-4 w-14" />
+      </div>
+      <div className="flex gap-2 mt-4">
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-9 w-full" />
       </div>
     </div>
-  );
+  )
+}
+
+function ProjectsContent() {
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState("all")
+  const [isLoading, setIsLoading] = useState(true)
+  const [projects, setProjects] = useState([])
+  const [recommendedProjects, setRecommendedProjects] = useState([])
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true) // Default to collapsed
+  const [filters, setFilters] = useState({
+    query: searchParams.get("q") || "",
+    language: searchParams.get("language") || "",
+    minStars: Number(searchParams.get("minStars") || 0),
+    maxIssues: Number(searchParams.get("maxIssues") || 0),
+    topics: searchParams.get("topics")?.split(",") || [],
+    issueLabels: searchParams.get("issueLabels")?.split(",") || [],
+  })
+
+  const [searchQuery, setSearchQuery] = useState(filters.query)
+  const [debouncedSearchQuery] = useDebounceValue(searchQuery, 500)
+  const [currentUser, setCurrentUser] = useState(null)
+
+  // Load projects based on current filters
+  const loadProjects = useCallback(async () => {
+    setIsLoading(true)
+
+    try {
+      let projectData
+
+      if (debouncedSearchQuery) {
+        // Search with filters
+        projectData = await searchProjects(debouncedSearchQuery, {
+          language: filters.language,
+          minStars: filters.minStars,
+          maxIssues: filters.maxIssues,
+        })
+      } else {
+        // Get trending projects
+        projectData = await fetchTrendingProjects(filters.language)
+      }
+
+      setProjects(projectData)
+    } catch (error) {
+      console.error("Error loading projects:", error)
+      setProjects([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [debouncedSearchQuery, filters])
+
+  // Load recommended projects for the user
+  const loadRecommendedProjects = useCallback(async (userId) => {
+    try {
+      const recommendations = await fetchRecommendedProjects(userId)
+      setRecommendedProjects(recommendations)
+    } catch (error) {
+      console.error("Error loading recommended projects:", error)
+      setRecommendedProjects([])
+    }
+  }, [])
+
+  // Check if user is logged in to show personalized recommendations
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+
+      if (user) {
+        loadRecommendedProjects(user.id)
+      }
+    }
+
+    fetchUser()
+    // Initial data loading
+    loadProjects()
+  }, [loadProjects, loadRecommendedProjects])
+
+  // Reload projects when filters or search query change
+  useEffect(() => {
+    if (debouncedSearchQuery !== undefined) {
+      loadProjects()
+    }
+  }, [debouncedSearchQuery, filters, loadProjects])
+
+  // Handle filter changes
+  const handleFilterChange = (newFilters) => {
+    setFilters({ ...filters, ...newFilters })
+    if (newFilters.query !== undefined) {
+      setSearchQuery(newFilters.query)
+    }
+  }
+
+  // Toggle sidebar collapse state
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed)
+  }
+
+  return (
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Desktop filter sidebar - styled like vertical navigation */}
+      <ProjectsSidebar searchParams={searchParams} />
+
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="border-b border-border px-6 py-3">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
+            <div>
+              <h1 className="text-2xl font-bold">Open Source Projects</h1>
+              <p className="text-muted-foreground text-sm">
+                Discover and contribute to open source projects that match your skills
+              </p>
+            </div>
+
+            {/* Mobile filter button */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="md:hidden">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md">
+                <div className="h-full overflow-y-auto py-4 px-1">
+                  <ProjectFilters onFilterChange={handleFilterChange} isMobile={true} />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-4">
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            <TabsList>
+              <TabsTrigger value="all">All Projects</TabsTrigger>
+              {currentUser && recommendedProjects.length > 0 && (
+                <TabsTrigger value="recommended">Recommended for You</TabsTrigger>
+              )}
+              <TabsTrigger value="trending">Trending</TabsTrigger>
+              <TabsTrigger value="new">New</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all" className="mt-6">
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {Array(6)
+                    .fill(0)
+                    .map((_, i) => (
+                      <ProjectCardSkeleton key={`skeleton-${i}`} />
+                    ))}
+                </div>
+              ) : projects.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {projects.map((project) => (
+                    <ProjectCard key={project.id} {...project} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 border rounded-lg bg-muted/20">
+                  <h3 className="text-lg font-medium">No projects found</h3>
+                  <p className="text-muted-foreground mt-1">Try adjusting your filters or search query</p>
+                </div>
+              )}
+            </TabsContent>
+
+            {currentUser && (
+              <TabsContent value="recommended" className="mt-6">
+                {recommendedProjects.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {recommendedProjects.map((project) => (
+                      <ProjectCard key={project.id} {...project} isRecommended={true} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 border rounded-lg bg-muted/20">
+                    <h3 className="text-lg font-medium">No recommendations yet</h3>
+                    <p className="text-muted-foreground mt-1">
+                      Complete your profile and add skills to get personalized recommendations
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            )}
+
+            <TabsContent value="trending" className="mt-6">
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {Array(6)
+                    .fill(0)
+                    .map((_, i) => (
+                      <ProjectCardSkeleton key={`trending-skeleton-${i}`} />
+                    ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {projects
+                    .sort((a, b) => b.stars - a.stars)
+                    .slice(0, 6)
+                    .map((project) => (
+                      <ProjectCard key={project.id} {...project} />
+                    ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="new" className="mt-6">
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {Array(6)
+                    .fill(0)
+                    .map((_, i) => (
+                      <ProjectCardSkeleton key={`new-skeleton-${i}`} />
+                    ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {projects
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .slice(0, 6)
+                    .map((project) => (
+                      <ProjectCard key={project.id} {...project} />
+                    ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // The main client component
 export default function ProjectsClient() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading projects...</div>}>
-      <ProjectsContent />
-    </Suspense>
-  );
-}
-
-// Simple project card component
-function ProjectCard({ title, description, tags, stars, forks }) {
-  return (
-    <div className="border border-border rounded-lg p-6 bg-card hover:shadow-md transition-shadow">
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground mb-4">{description}</p>
-      
-      <div className="flex flex-wrap gap-2 mb-4">
-        {tags.map((tag, index) => (
-          <span key={index} className="bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded">
-            {tag}
-          </span>
-        ))}
-      </div>
-      
-      <div className="flex items-center text-sm text-muted-foreground">
-        <span className="flex items-center mr-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-          </svg>
-          {stars}
-        </span>
-        <span className="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-          </svg>
-          {forks}
-        </span>
-      </div>
-    </div>
-  );
+  return <ProjectsContent />
 }
