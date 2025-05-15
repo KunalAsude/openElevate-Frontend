@@ -4,7 +4,9 @@ const nextConfig = {
       domains: ['avatars.githubusercontent.com'],
     },
     experimental: {
-      serverActions: true,
+      serverActions: {
+        allowedOrigins: ['localhost:3000'],
+      },
     },
   };
   
