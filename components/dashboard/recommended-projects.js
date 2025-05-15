@@ -47,7 +47,7 @@ export function RecommendedProjects() {
         console.error('Error fetching recommended repos:', error)
         setError("Failed to load recommended projects")
         
-        // If we can't get real recommendations, fall back to API-based recommendations
+        // If we can get real recommendations, fall back to API-based recommendations
         try {
           // Try to fetch trending repositories as fallback
           const fallbackResponse = await axios.get('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&order=desc&per_page=3')
@@ -118,7 +118,7 @@ export function RecommendedProjects() {
       <div className="flex flex-col items-center justify-center p-6 space-y-4 text-center rounded-lg border border-dashed">
         <Github className="h-10 w-10 text-muted-foreground" />
         <div>
-          <p className="font-medium">Couldn't load recommended projects</p>
+          <p className="font-medium">Could&lsquo;t load recommended projects</p>
           <p className="text-sm text-muted-foreground mt-1">Connect your GitHub account to see personalized project recommendations</p>
         </div>
       </div>
@@ -131,7 +131,7 @@ export function RecommendedProjects() {
         <Github className="h-10 w-10 text-muted-foreground" />
         <div>
           <p className="font-medium">No projects found</p>
-          <p className="text-sm text-muted-foreground mt-1">We couldn't find any recommended projects based on your profile</p>
+          <p className="text-sm text-muted-foreground mt-1">We couldn&lsquo;t find any recommended projects based on your profile</p>
         </div>
       </div>
     )
