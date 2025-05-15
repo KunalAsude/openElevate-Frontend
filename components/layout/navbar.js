@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { GitHubIndicator } from "@/components/github/github-indicator"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -224,6 +225,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <GitHubIndicator />
           <ThemeToggle />
           {isLoggedIn ? (
             <div className="hidden md:flex items-center gap-4">

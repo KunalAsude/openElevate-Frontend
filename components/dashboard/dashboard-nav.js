@@ -21,15 +21,15 @@ export function DashboardNav({ className, ...props }) {
       active: pathname === "/dashboard",
     },
     {
-      href: "/dashboard/projects",
-      label: "Projects",
-      icon: Code,
-      active: pathname === "/dashboard/projects" || pathname?.startsWith("/dashboard/projects/"),
+      href: "/dashboard/repositories",
+      label: "Repositories",
+      icon: GitPullRequest,
+      active: pathname === "/dashboard/repositories" || pathname?.startsWith("/dashboard/repositories/"),
     },
     {
       href: "/dashboard/contributions",
       label: "Contributions",
-      icon: GitPullRequest,
+      icon: Code,
       active: pathname === "/dashboard/contributions" || pathname?.startsWith("/dashboard/contributions/"),
     },
     {

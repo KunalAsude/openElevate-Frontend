@@ -130,10 +130,10 @@ export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollap
           active: pathname === "/dashboard",
         },
         {
-          href: "/dashboard/projects",
-          label: "Projects",
+          href: "/dashboard/repositories",
+          label: "Repositories",
           icon: Code,
-          active: pathname === "/dashboard/projects" || pathname?.startsWith("/dashboard/projects/"),
+          active: pathname === "/dashboard/repositories" || pathname?.startsWith("/dashboard/repositories/"),
         },
         {
           href: "/dashboard/contributions",
