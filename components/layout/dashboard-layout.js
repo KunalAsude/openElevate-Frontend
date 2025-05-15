@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from "next/link"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Logo } from "@/components/layout/logo"
@@ -9,6 +9,9 @@ import { Menu, PanelLeft, PanelRightClose } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function DashboardLayout({ children }) {
+  // Reference to main content for programmatic adjustments
+  const contentRef = useRef(null);
+  
   // Use state with a callback to ensure immediate UI updates
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -18,51 +21,56 @@ export function DashboardLayout({ children }) {
     return false
   })
   
-  // This effect runs only once on component mount
+  // Save sidebar state to localStorage when it changes
   useEffect(() => {
-    // Make sure the DOM is fully loaded
-    const handleResize = () => {
-      // Force redraw of the layout
-      document.body.style.display = 'none'
-      setTimeout(() => {
-        document.body.style.display = ''
-      }, 0)
-    }
+    localStorage.setItem('sidebarCollapsed', String(sidebarCollapsed))
     
-    // Handle the custom sidebarToggled event
-    const handleSidebarToggle = (event) => {
-      // Force a layout recalculation for the main content
-      const mainContent = document.querySelector('.dashboard-content')
-      if (mainContent) {
-        // Apply a temporary class to trigger a reflow
-        mainContent.classList.add('content-adjusting')
-        
-        // Force a reflow by accessing offsetHeight
-        void mainContent.offsetHeight
-        
-        // Remove the class after a short delay
-        setTimeout(() => {
-          mainContent.classList.remove('content-adjusting')
-        }, 300)
+    // Force layout recalculation after state change
+    if (contentRef.current) {
+      // Use RAF for better performance
+      window.requestAnimationFrame(() => {
+        // The following line forces a repaint
+        void contentRef.current.offsetWidth;
+      });
+    }
+  }, [sidebarCollapsed])
+  
+  // Use ResizeObserver to handle sidebar width changes
+  useEffect(() => {
+    // Get the sidebar element
+    const sidebarElement = document.querySelector('.sidebar-element');
+    
+    if (!sidebarElement) return;
+    
+    // Create a resize observer to watch for width changes
+    const resizeObserver = new ResizeObserver(() => {
+      if (contentRef.current) {
+        // Trigger a reflow
+        contentRef.current.style.display = 'none';
+        // Force reflow
+        void contentRef.current.offsetHeight;
+        // Restore display
+        contentRef.current.style.display = '';
       }
-    }
+    });
     
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('sidebarToggled', handleSidebarToggle)
+    // Start observing
+    resizeObserver.observe(sidebarElement);
     
     return () => {
-      window.removeEventListener('resize', handleResize)
-      window.removeEventListener('sidebarToggled', handleSidebarToggle)
-    }
-  }, [])
+      resizeObserver.disconnect();
+    };
+  }, []);
 
-  // Handle sidebar toggle with immediate visual feedback
+  // Handle sidebar toggle with manual layout adjustment for immediate feedback
   const handleToggleSidebar = (newState) => {
-    setSidebarCollapsed(newState)
-    localStorage.setItem('sidebarCollapsed', String(newState))
+    setSidebarCollapsed(newState);
     
-    // Force immediate redraw
-    document.body.classList.toggle('sidebar-collapsed', newState)
+    // Immediate layout adjustment technique
+    if (contentRef.current) {
+      // Apply class immediately for visual feedback
+      contentRef.current.style.marginLeft = newState ? '70px' : '250px';
+    }
   }
 
   return (
@@ -77,6 +85,7 @@ export function DashboardLayout({ children }) {
               size="icon" 
               className="h-12 w-12"
               onClick={() => handleToggleSidebar(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <Menu className="h-6 w-6" />
             </Button>
@@ -89,19 +98,26 @@ export function DashboardLayout({ children }) {
       </header>
       
       {/* Content area with sidebar and main content */}
-      <div className="flex pt-12"> {/* Add padding top to account for navbar */}
+      <div className="flex pt-12 relative"> {/* Add padding top to account for navbar */}
         {/* Sidebar */}
         <Sidebar 
           isCollapsed={sidebarCollapsed} 
           onToggleCollapse={handleToggleSidebar} 
-          className="border-r border-border"
+          className="border-r border-border sidebar-element"
         />
         
-        {/* Main content */}
-        <div className={cn(
-          "flex-1 overflow-auto transition-all duration-300 dashboard-content",
-          sidebarCollapsed ? "ml-[70px]" : "ml-[250px]"
-        )}>
+        {/* Main content with reference for programmatic adjustment */}
+        <div 
+          ref={contentRef}
+          className={cn(
+            "flex-1 overflow-auto duration-200 ease-out dashboard-content",
+            "will-change-[margin-left] transform-gpu"
+          )}
+          style={{
+            marginLeft: sidebarCollapsed ? '70px' : '250px',
+            transition: 'margin-left 200ms ease-out',
+          }}
+        >
           {/* Floating sidebar toggle button */}
           <div className="fixed top-4 right-4 z-50">
             <Button
@@ -109,6 +125,7 @@ export function DashboardLayout({ children }) {
               size="icon"
               className="h-12 w-12 rounded-full shadow-lg bg-primary text-primary-foreground"
               onClick={() => handleToggleSidebar(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {sidebarCollapsed ? (
                 <PanelRightClose className="h-6 w-6" />
@@ -121,6 +138,20 @@ export function DashboardLayout({ children }) {
           {children}
         </div>
       </div>
+      
+      {/* Style tag to improve transitions */}
+      <style jsx global>{`
+        .dashboard-content {
+          contain: layout style size;
+          transform: translateZ(0);
+          backface-visibility: hidden;
+        }
+        
+        /* Prevent layout thrashing during transitions */
+        body {
+          overflow-x: hidden;
+        }
+      `}</style>
     </div>
   )
 }

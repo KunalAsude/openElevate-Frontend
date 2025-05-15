@@ -59,7 +59,7 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-1 w-full">
               {/* Responsive container with proper padding for different screen sizes */}
-              <div className="container-fluid mx-auto py-4 sm:py-6 md:py-8 safe-area-inset-x">
+              <div className="container-fluid mx-auto py-4 sm:py-6 md:py-2 safe-area-inset-x">
                 {children}
               </div>
             </main>

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -29,11 +29,43 @@ import { Button } from "@/components/ui/button"
 
 export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollapse, className }) {
   const pathname = usePathname()
+  const sidebarRef = useRef(null)
 
   const [internalCollapsed, setInternalCollapsed] = useState(false)
+  const [isMobileView, setIsMobileView] = useState(false)
 
+
+  // Use the external collapsed state if provided, otherwise use internal state
   const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed
 
+  // Initialize component with saved state from localStorage and check screen size
+  useEffect(() => {
+    // Check if we're on a mobile device
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth < 768)  // 768px is typical md breakpoint
+      
+      // Auto-collapse on mobile
+      if (window.innerWidth < 768) {
+        setInternalCollapsed(true)
+        localStorage.setItem("sidebarCollapsed", "true")
+      } else {
+        // Try to get saved state from localStorage for larger screens
+        const savedCollapsed = localStorage.getItem("sidebarCollapsed")
+        if (savedCollapsed !== null) {
+          setInternalCollapsed(savedCollapsed === "true")
+        }
+      }
+    }
+    
+    // Initial check
+    checkMobileView()
+    
+    // Add resize listener for responsive behavior
+    window.addEventListener('resize', checkMobileView)
+    return () => window.removeEventListener('resize', checkMobileView)
+  }, [])
+
+  // Initialize internal state from localStorage on mount
   useEffect(() => {
     if (isCollapsed === undefined) {
       const savedCollapsed = localStorage.getItem("sidebarCollapsed")
@@ -42,6 +74,30 @@ export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollap
       }
     }
   }, [isCollapsed])
+  
+  // Notify the layout about width changes
+  useEffect(() => {
+    // Create a resize observer to notify layout of any size changes
+    if (sidebarRef.current) {
+      const resizeObserver = new ResizeObserver(() => {
+        // Dispatch resize event to trigger layout recalculations
+        window.dispatchEvent(new Event('resize'));
+        
+        // Dispatch a custom event that parent components can listen for
+        window.dispatchEvent(new CustomEvent('sidebarResized', {
+          detail: { collapsed }
+        }));
+      });
+      
+      resizeObserver.observe(sidebarRef.current);
+      
+      return () => {
+        if (sidebarRef.current) {
+          resizeObserver.unobserve(sidebarRef.current);
+        }
+      };
+    }
+  }, [collapsed]);
 
   const toggleCollapse = () => {
     if (onToggleCollapse) {
@@ -53,42 +109,19 @@ export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollap
       setInternalCollapsed(newCollapsed)
       localStorage.setItem("sidebarCollapsed", String(newCollapsed))
       
-      // Force immediate redraw
-      document.body.classList.toggle('sidebar-collapsed', newCollapsed)
-      
-      // Force browser to recalculate layout immediately
-      window.requestAnimationFrame(() => {
-        window.dispatchEvent(new Event('resize'))
-      })
-      
-      // Add a timeout to reload the main content after 1 second
-      setTimeout(() => {
-        // Force a layout recalculation
-        const mainContent = document.querySelector('main')
-        if (mainContent) {
-          // Temporarily adjust the display to force a reflow
-          const originalDisplay = mainContent.style.display
-          mainContent.style.display = 'none'
-          
-          // Force a reflow by accessing offsetHeight
-          void mainContent.offsetHeight
-          
-          // Restore the original display
-          mainContent.style.display = originalDisplay
-        }
-        
-        // Dispatch a custom event that can be listened to by other components
-        window.dispatchEvent(new CustomEvent('sidebarToggled', { detail: { collapsed: newCollapsed } }))
-        
-        // Force another resize event for good measure
-        window.dispatchEvent(new Event('resize'))
-      }, 1000)
+      // Force layout recalculation
+      document.documentElement.style.setProperty('--force-repaint', '0');
+      // Force a reflow
+      void document.documentElement.offsetHeight;
+      // Reset the property
+      document.documentElement.style.setProperty('--force-repaint', '1');
     }
   }
 
   const navItems = [
     {
       title: "",
+      divider: true, // Adding divider above Dashboard section
       items: [
         {
           href: "/dashboard",
@@ -174,11 +207,19 @@ export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollap
 
   return (
     <aside
+      ref={sidebarRef}
       className={cn(
-        "fixed left-0 top-12 z-40 h-[calc(100vh-48px)] bg-background transition-all duration-300 flex flex-col",
+        "fixed left-0 top-12 z-40 h-[calc(100vh-48px)] bg-background flex flex-col sidebar-element",
         collapsed ? "w-[70px]" : "w-[250px]",
         className,
       )}
+      style={{
+        willChange: 'width',
+        contain: 'layout style size',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        transition: 'width 200ms ease-out'
+      }}
     >
       <div className="flex h-16 items-center px-3 relative">
         {/* Collapse button in the left corner */}
@@ -190,24 +231,32 @@ export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollap
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
-            <PanelRightClose variant="ghost" className="h-10 w-10 mt-5 text-gray-400" />
+            <PanelRightClose className="h-10 w-10 mt-10 text-gray-500" />
           ) : (
-            <PanelLeft variant="ghost" className="h-10 w-10 mt-5 text-gray-400" />
+            <PanelLeft className="h-10 w-10 mt-10 text-gray-500" />
           )}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-3 scrollbar-thin">
-        <div className="flex flex-col gap-4">
+      {/* Mobile overlay for when sidebar is expanded on mobile */}
+      {!collapsed && isMobileView && (
+        <div 
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[-1]"
+          onClick={toggleCollapse}
+          aria-hidden="true"
+        />
+      )}
+      <div className="flex-1 overflow-y-auto py-4 scrollbar-thin">
+        <div className="flex flex-col gap-1">
           {navItems.map((section, i) => (
-            <div key={i} className={cn(collapsed ? "px-2" : "px-3")}>
+            <div key={i} className="px-3">  {/* Consistent padding regardless of collapse state */}
               {!collapsed && section.title && (
                 <h3 className="mb-1 px-2 text-base font-medium text-muted-foreground">{section.title}</h3>
               )}
               {!collapsed && section.divider && (
                 <div className="h-[1px] bg-border mx-2 my-2"></div>
               )}
-              {collapsed && <div className="h-[1px] bg-border mx-1 mb-3"></div>}
+              {collapsed && section.divider && <div className="h-[1px] bg-border mx-1 mb-3"></div>}
               <div className="space-y-2">
                 {section.items.map((item, j) => (
                   <Link
@@ -282,6 +331,11 @@ export const Sidebar = React.memo(function Sidebar({ isCollapsed, onToggleCollap
         }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
           background: hsl(var(--muted-foreground));
+        }
+        
+        /* CSS variable for forced repaint */
+        :root {
+          --force-repaint: 1;
         }
       `}</style>
     </aside>
