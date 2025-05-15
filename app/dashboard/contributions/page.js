@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -5,51 +8,104 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { ContributionCard } from "@/components/contributions/contribution-card"
-import { Search } from "lucide-react"
+import { GitHubProtectionWrapper } from "@/components/github/github-protection-wrapper"
+import { Search, Loader2, Github } from "lucide-react"
+import axios from "axios"
+import { API_BASE_URL } from "@/lib/constants"
 
-export default function ContributionsPage() {
-  const contributions = [
-    {
-      id: 1,
-      title: "Fix button component styling",
-      project: "React Component Library",
-      status: "merged",
-      date: "2023-05-15",
-      type: "pull-request",
-    },
-    {
-      id: 2,
-      title: "Add TypeScript types for API responses",
-      project: "Node.js API Framework",
-      status: "open",
-      date: "2023-05-10",
-      type: "pull-request",
-    },
-    {
-      id: 3,
-      title: "Documentation update for animation modules",
-      project: "CSS Animation Library",
-      status: "merged",
-      date: "2023-05-05",
-      type: "pull-request",
-    },
-    {
-      id: 4,
-      title: "Bug in dropdown component",
-      project: "React Component Library",
-      status: "open",
-      date: "2023-05-02",
-      type: "issue",
-    },
-    {
-      id: 5,
-      title: "Performance optimization for large datasets",
-      project: "Node.js API Framework",
-      status: "closed",
-      date: "2023-04-28",
-      type: "issue",
-    },
-  ]
+function ContributionsContent() {
+  const [contributions, setContributions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    const fetchContributions = async () => {
+      try {
+        setLoading(true)
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          setLoading(false)
+          return
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/github/contributions`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        if (response.data) {
+          // Transform GitHub PRs and issues into our format
+          const prs = (response.data.pullRequests || []).map(pr => ({
+            id: pr.id,
+            title: pr.title,
+            project: pr.repository.name,
+            status: pr.state.toLowerCase(),
+            date: new Date(pr.createdAt).toISOString().split('T')[0],
+            type: "pull-request",
+            url: pr.url
+          }))
+
+          const issues = (response.data.issues || []).map(issue => ({
+            id: issue.id,
+            title: issue.title,
+            project: issue.repository.name,
+            status: issue.state.toLowerCase(),
+            date: new Date(issue.createdAt).toISOString().split('T')[0],
+            type: "issue",
+            url: issue.url
+          }))
+
+          setContributions([...prs, ...issues].sort((a, b) => 
+            new Date(b.date) - new Date(a.date)
+          ))
+        }
+      } catch (error) {
+        console.error('Error fetching contributions:', error)
+        setError("Failed to load GitHub contributions")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchContributions()
+  }, [])
+
+  // Filter contributions based on search query
+  const filteredContributions = contributions.filter(contribution => 
+    contribution.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    contribution.project.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  if (loading) {
+    return (
+      <DashboardShell>
+        <DashboardHeader heading="Contributions" text="Track and manage your open source contributions." />
+        <div className="flex justify-center items-center h-64">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Loading your GitHub contributions...</p>
+          </div>
+        </div>
+      </DashboardShell>
+    )
+  }
+
+  if (error) {
+    return (
+      <DashboardShell>
+        <DashboardHeader heading="Contributions" text="Track and manage your open source contributions." />
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center p-6 space-y-4 text-center">
+            <Github className="h-10 w-10 text-muted-foreground" />
+            <div>
+              <p className="font-medium">{error}</p>
+              <p className="text-sm text-muted-foreground mt-1">Could not load your GitHub contributions</p>
+            </div>
+          </CardContent>
+        </Card>
+      </DashboardShell>
+    )
+  }
 
   return (
     <DashboardShell>
@@ -58,7 +114,13 @@ export default function ContributionsPage() {
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="Search contributions..." className="pl-8" />
+          <Input 
+            type="search" 
+            placeholder="Search contributions..." 
+            className="pl-8" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         <Button variant="outline">Filter</Button>
       </div>
@@ -77,9 +139,15 @@ export default function ContributionsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {contributions.map((contribution) => (
-                  <ContributionCard key={contribution.id} contribution={contribution} />
-                ))}
+                {filteredContributions.length > 0 ? (
+                  filteredContributions.map((contribution) => (
+                    <ContributionCard key={contribution.id} contribution={contribution} />
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground">No contributions found</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -92,11 +160,19 @@ export default function ContributionsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {contributions
+                {filteredContributions
                   .filter((c) => c.type === "pull-request")
-                  .map((contribution) => (
-                    <ContributionCard key={contribution.id} contribution={contribution} />
-                  ))}
+                  .length > 0 ? (
+                    filteredContributions
+                      .filter((c) => c.type === "pull-request")
+                      .map((contribution) => (
+                        <ContributionCard key={contribution.id} contribution={contribution} />
+                      ))
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground">No pull requests found</p>
+                    </div>
+                  )}
               </div>
             </CardContent>
           </Card>
@@ -109,16 +185,32 @@ export default function ContributionsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {contributions
+                {filteredContributions
                   .filter((c) => c.type === "issue")
-                  .map((contribution) => (
-                    <ContributionCard key={contribution.id} contribution={contribution} />
-                  ))}
+                  .length > 0 ? (
+                    filteredContributions
+                      .filter((c) => c.type === "issue")
+                      .map((contribution) => (
+                        <ContributionCard key={contribution.id} contribution={contribution} />
+                      ))
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground">No issues found</p>
+                    </div>
+                  )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </DashboardShell>
+  )
+}
+
+export default function ContributionsPage() {
+  return (
+    <GitHubProtectionWrapper>
+      <ContributionsContent />
+    </GitHubProtectionWrapper>
   )
 }

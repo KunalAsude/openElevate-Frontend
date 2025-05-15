@@ -13,17 +13,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, UserCircle, Settings, LogOut, Home, Code, Users, Trophy, Info, HelpCircle } from "lucide-react"
-import { getCurrentUser } from "@/lib/actions/auth-actions"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Bell, UserCircle, Settings, LogOut, Home, Code, Users, Trophy, Info, HelpCircle, GitHub } from "lucide-react"
+import { getCurrentUser, getAuthToken, loginWithGithub } from "@/lib/actions/auth-actions"
+import axios from "axios"
+import { API_BASE_URL } from "@/lib/constants"
 
 export function UserNav() {
   const [userData, setUserData] = useState(null)
+  const [githubUser, setGithubUser] = useState(null)
+  const [isConnectingGithub, setIsConnectingGithub] = useState(false)
   
   useEffect(() => {
     const user = getCurrentUser()
     if (user) {
       setUserData(user)
     }
+    
+    // Check if GitHub is connected
+    const checkGitHubConnection = async () => {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+        
+        const response = await axios.get(`${API_BASE_URL}/github/analytics`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        
+        if (response.data && response.data.user) {
+          setGithubUser(response.data.user)
+        }
+      } catch (error) {
+        console.error('Error checking GitHub connection:', error)
+      }
+    }
+    
+    checkGitHubConnection()
   }, [])
   
   // Handle logout
@@ -33,10 +63,72 @@ export function UserNav() {
     window.location.href = '/'
   }
   
+  // Handle GitHub connection
+  const handleGitHubConnect = () => {
+    setIsConnectingGithub(true)
+    loginWithGithub()
+  }
+  
+  // Handle GitHub disconnection
+  const handleGitHubDisconnect = async () => {
+    try {
+      const token = getAuthToken()
+      if (!token) return
+      
+      await axios.post(`${API_BASE_URL}/github/disconnect`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      
+      setGithubUser(null)
+    } catch (error) {
+      console.error('Error disconnecting GitHub:', error)
+    }
+  }
+  
   const userInitial = userData?.name ? userData.name[0] : 'U'
   
   return (
     <div className="flex items-center gap-4">
+      {/* GitHub Connection Status */}
+      {userData && (
+        githubUser ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={handleGitHubDisconnect}
+                  className="relative"
+                >
+                  <Avatar className="h-8 w-8 border-2 border-primary">
+                    <AvatarImage src={githubUser.avatar_url} alt={githubUser.login} />
+                    <AvatarFallback><GitHub className="h-4 w-4" /></AvatarFallback>
+                  </Avatar>
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Connected to GitHub as {githubUser.login}</p>
+                <p className="text-xs text-gray-500">Click to disconnect</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleGitHubConnect}
+            disabled={isConnectingGithub}
+            className="flex items-center gap-2"
+          >
+            <GitHub className="h-4 w-4" />
+            {isConnectingGithub ? 'Connecting...' : 'Connect GitHub'}
+          </Button>
+        )
+      )}
+      
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
         <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary"></span>

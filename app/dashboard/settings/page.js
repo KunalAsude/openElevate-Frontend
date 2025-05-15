@@ -9,6 +9,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GitHubConnectToggle } from "@/components/github/github-connect-toggle"
 
 function SettingsPage() {
   return (
@@ -256,16 +257,15 @@ function SettingsPage() {
           </Card>
         </TabsContent>
         <TabsContent value="integrations" className="space-y-4">
+          {/* GitHub Integration */}
+          <GitHubConnectToggle />
+
           <Card>
             <CardHeader>
-              <CardTitle>Integrations</CardTitle>
-              <CardDescription>Connect your account with third-party services.</CardDescription>
+              <CardTitle>Social Integrations</CardTitle>
+              <CardDescription>Connect your social media accounts.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="github">GitHub</Label>
-                <Input id="github" defaultValue="johndoe" />
-              </div>
               <div className="grid gap-2">
                 <Label htmlFor="twitter">Twitter</Label>
                 <Input id="twitter" defaultValue="@johndoe" />
