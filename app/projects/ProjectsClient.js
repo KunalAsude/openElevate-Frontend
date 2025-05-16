@@ -53,17 +53,38 @@ function ProjectsContentInner() {
   const [recommendedProjects, setRecommendedProjects] = useState([])
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true) // Default to collapsed
   const [filters, setFilters] = useState({
-    query: searchParams.get("q") || "",
-    language: searchParams.get("language") || "",
-    minStars: Number(searchParams.get("minStars") || 0),
-    maxIssues: Number(searchParams.get("maxIssues") || 0),
-    topics: searchParams.get("topics")?.split(",") || [],
-    issueLabels: searchParams.get("issueLabels")?.split(",") || [],
+    query: "",
+    language: "",
+    minStars: 0,
+    maxIssues: 0,
+    topics: [],
+    issueLabels: [],
   })
+  
+  // Initialize filters from URL params after component mounts
+  useEffect(() => {
+    if (searchParams) {
+      setFilters({
+        query: searchParams.get("q") || "",
+        language: searchParams.get("language") || "",
+        minStars: Number(searchParams.get("minStars") || 0),
+        maxIssues: Number(searchParams.get("maxIssues") || 0),
+        topics: searchParams.get("topics")?.split(",").filter(Boolean) || [],
+        issueLabels: searchParams.get("issueLabels")?.split(",").filter(Boolean) || [],
+      })
+    }
+  }, [searchParams])
 
-  const [searchQuery, setSearchQuery] = useState(filters.query)
+  const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery] = useDebounceValue(searchQuery, 500)
   const [currentUser, setCurrentUser] = useState(null)
+  
+  // Update search query when filters change
+  useEffect(() => {
+    if (filters.query !== searchQuery) {
+      setSearchQuery(filters.query)
+    }
+  }, [filters.query])
 
   // Load projects based on current filters
   const loadProjects = useCallback(async () => {
@@ -120,12 +141,17 @@ function ProjectsContentInner() {
     loadProjects()
   }, [loadProjects, loadRecommendedProjects])
 
-  // Reload projects when filters or search query change
+  // Effect to run when filters/search change
   useEffect(() => {
-    if (debouncedSearchQuery !== undefined) {
-      loadProjects()
+    // Only load projects when we have filters (which are set after component mounts)
+    if (searchParams && filters.language) {
+      console.log('Loading projects with language filter:', filters.language);
+      loadProjects();
+    } else if (debouncedSearchQuery) {
+      console.log('Loading projects with search query:', debouncedSearchQuery);
+      loadProjects();
     }
-  }, [debouncedSearchQuery, filters, loadProjects])
+  }, [debouncedSearchQuery, filters, loadProjects, searchParams])
 
   // Handle filter changes
   const handleFilterChange = (newFilters) => {
