@@ -283,7 +283,7 @@ function BadgesContent() {
 
 export default function BadgesPage() {
   return (
-    <GitHubProtectionWrapper>
+    <GitHubProtectionWrapper redirectOnConnect={false}>
       <BadgesContent />
     </GitHubProtectionWrapper>
   )
