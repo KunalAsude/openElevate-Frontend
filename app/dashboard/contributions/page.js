@@ -536,7 +536,7 @@ function ContributionsContent() {
 
 export default function ContributionsPage() {
   return (
-    <GitHubProtectionWrapper>
+    <GitHubProtectionWrapper redirectOnConnect={false}>
       <ContributionsContent />
     </GitHubProtectionWrapper>
   )

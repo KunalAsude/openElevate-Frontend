@@ -15,7 +15,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, LayoutDashboard, User, Settings, LogOut, KeyRound, Github, Mail, Code, GitPullRequest, Users, BookOpen, Trophy, Star, PanelLeft, PanelRightClose, ChevronDown } from "lucide-react"
+import { Menu, LayoutDashboard, User, Settings, LogOut, KeyRound, Github, Mail, Code, GitPullRequest, Users, BookOpen, Trophy, Star, PanelLeft, PanelRightClose, ChevronDown, BarChart2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -217,6 +217,16 @@ export function Navbar() {
                 <NavigationMenuLink asChild>
                   <Link href="/faq" className={pathname.startsWith("/faq") ? activeNavLinkStyle : navLinkStyle}>
                     FAQ
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link 
+                    href="/platform-analytics" 
+                    className={pathname.startsWith("/platform-analytics") ? activeNavLinkStyle : navLinkStyle}
+                  >
+                    Platform Analytics
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>

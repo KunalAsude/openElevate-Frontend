@@ -141,6 +141,12 @@ export function MobileNav() {
           icon: BookOpen,
           active: pathname === '/resources',
         },
+        {
+          href: '/platform-analytics',
+          label: 'Platform Analytics',
+          icon: BarChart2,
+          active: pathname === '/platform-analytics',
+        },
       ],
     },
   ]
